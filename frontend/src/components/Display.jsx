@@ -3,15 +3,19 @@ import { Route, Routes, useLocation } from 'react-router-dom'
 import {DisplayHome} from './DisplayHome'
 import DisplayAlbum from './DisplayAlbum'
 import { albumsData } from '../assets/frontend-assets/assets'
+import { useContext } from 'react'
+import { PlayerContext } from '../context/PlayerContext'
 
  export const Display = () => {
+
+  const {albumsData} = useContext(PlayerContext);
 
   //to add background colour of album after clicking on it
    const displayRef=useRef();
    const location=useLocation();
    const isAlbum=location.pathname.includes("album");
-   const albumId= isAlbum ? location.pathname.slice(-1) : "";
-   const bgColor= albumsData[Number(albumId)].bgColor;
+   const albumId= isAlbum ? location.pathname.split('/').pop() :"";
+   const bgColor= isAlbum && albumsData.length > 0 ? albumsData.find((x) => x._id == albumId).bgColour :"#121212";
 
    useEffect(()=>{
     if(isAlbum){
@@ -25,13 +29,14 @@ import { albumsData } from '../assets/frontend-assets/assets'
 
   return (
     <div ref={displayRef} className='w-[100%] m-2 px-6 pt-4 rounded bg-[#121212] text-white overflow-auto lg:w-[75%] lg:ml-0'>
-    
+    {albumsData.length > 0
+     ?
       <Routes>
          <Route path='/' element={<DisplayHome/>}/>
-         <Route path='/album/:id' element={<DisplayAlbum/>}/>
+         <Route path='/album/:id' element={<DisplayAlbum album={albumsData.find((x) => (x._id == albumId))}/>}/>
       </Routes>
-      
-    
+      : null
+    }
     </div>
   )
  }
